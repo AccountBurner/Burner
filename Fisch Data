@@ -1,0 +1,62 @@
+return {
+    {
+        Name = "Sundial Totem",
+        Position = { X = -1215, Y = 195, Z = -1041 },
+        Category = "Totems"
+    },
+    {
+        Name = "Tempest Totem",
+        Position = { X = 36, Y = 135, Z = 1946 },
+        Category = "Totems"
+    },
+    {
+        Name = "Windset Totem",
+        Position = { X = 2844, Y = 180, Z = 2700 },
+        Category = "Totems"
+    },
+    {
+        Name = "Smokescreen Totem",
+        Position = { X = 2791, Y = 140, Z = -623 },
+        Category = "Totems"
+    },
+    {
+        Name = "Meteor Totem",
+        Position = { X = -1944, Y = 275, Z = 230 },
+        Category = "Totems"
+    },
+    {
+        Name = "Avalanche Totem",
+        Position = { X = 19711, Y = 468, Z = 6059 },
+        Category = "Totems"
+    },
+    {
+        Name = "Eclipse Totem",
+        Position = { X = 5940, Y = 265, Z = 900 },
+        Category = "Totems"
+    },
+    {
+        Name = "Blizzard Totem",
+        Position = { X = 20148, Y = 743, Z = 5804 },
+        Category = "Totems"
+    },
+    {
+        Name = "Aurora Totem",
+        Position = { X = -1810, Y = -135, Z = -3280 },
+        Category = "Totems"
+    },
+    {
+        Name = "Zeus Storm Totem",
+        Position = { X = -4325, Y = -625, Z = 2685 },
+        Category = "Totems"
+    },
+    {
+        Name = "Poseidon’s Wrath Totem",
+        Position = { X = -3955, Y = -555, Z = 855 },
+        Category = "Totems"
+    },
+    {
+        Name = "Blue Moon Totem",
+        Position = { X = 2715, Y = 140, Z = -2480 },
+        Category = "Totems"
+    }
+}
