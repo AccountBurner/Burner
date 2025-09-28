@@ -1,4 +1,5 @@
 return {
+    -- Totems
     {
         Name = "Sundial Totem",
         Position = { X = -1215, Y = 195, Z = -1041 },
@@ -50,7 +51,7 @@ return {
         Category = "Totems"
     },
     {
-        Name = "Poseidon’s Wrath Totem",
+        Name = "Poseidon's Wrath Totem",
         Position = { X = -3955, Y = -555, Z = 855 },
         Category = "Totems"
     },
@@ -59,7 +60,6 @@ return {
         Position = { X = 2715, Y = 140, Z = -2480 },
         Category = "Totems"
     },
-
     -- Rods
     {
         Name = "Stone Rod",
@@ -140,5 +140,41 @@ return {
         Name = "Brick Rod (vault room)",
         Position = { X = 1321, Y = 140, Z = 1540 },
         Category = "Rods"
+    },
+    -- Other Islands
+    {
+        Name = "Jungle's Echo",
+        Position = { X = -3034.26, Y = 139.25, Z = -1045.86 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Castaway Cliffs",
+        Position = { X = 690.68, Y = 132.80, Z = -1702.57 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Volcanic Vents",
+        Position = { X = -3422.42, Y = -2271.19, Z = 3794.60 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Challenger's Deep",
+        Position = { X = -809.02, Y = -3283.21, Z = -644.21 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Calm Zone (at the boss arena puzzle)",
+        Position = { X = -4359.18, Y = -11182.64, Z = 3530.95 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Abyssal Zenith",
+        Position = { X = -13527.29, Y = -11050.19, Z = 120.35 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Veil of the Forsaken",
+        Position = { X = -2350.74, Y = -11184.60, Z = 7094.52 },
+        Category = "Other Islands"
     }
 }
