@@ -58,5 +58,87 @@ return {
         Name = "Blue Moon Totem",
         Position = { X = 2715, Y = 140, Z = -2480 },
         Category = "Totems"
+    },
+
+    -- Rods
+    {
+        Name = "Stone Rod",
+        Position = { X = 5500, Y = 143, Z = -316 },
+        Category = "Rods"
+    },
+    {
+        Name = "Phoenix Rod",
+        Position = { X = 5925, Y = 281, Z = 883 },
+        Category = "Rods"
+    },
+    {
+        Name = "Rod of the Depths (platform)",
+        Position = { X = 1701, Y = -902, Z = 1446.2 },
+        Category = "Rods"
+    },
+    {
+        Name = "Avalanche Rod",
+        Position = { X = 19771, Y = 415, Z = 5415 },
+        Category = "Rods"
+    },
+    {
+        Name = "Crystalized Rod",
+        Position = { X = 20296, Y = 272, Z = 5463 },
+        Category = "Rods"
+    },
+    {
+        Name = "Summit Rod",
+        Position = { X = 20213.5, Y = 736.7, Z = 5713 },
+        Category = "Rods"
+    },
+    {
+        Name = "Heaven's Rod (altar / hiker)",
+        Position = { X = 19977, Y = 917, Z = 5375 },
+        Category = "Rods"
+    },
+    {
+        Name = "Rod of the Exalted One (altar entrance)",
+        Position = { X = 2730, Y = 130, Z = -820 },
+        Category = "Rods"
+    },
+    {
+        Name = "Volcanic Rod",
+        Position = { X = -3175, Y = -2030, Z = 4020 },
+        Category = "Rods"
+    },
+    {
+        Name = "Challenger's Rod",
+        Position = { X = 740, Y = -3350, Z = -1530 },
+        Category = "Rods"
+    },
+    {
+        Name = "Rod of the Zenith",
+        Position = { X = -13620, Y = -11030, Z = 350 },
+        Category = "Rods"
+    },
+    {
+        Name = "Ethereal Prism Rod",
+        Position = { X = -4360, Y = -11170, Z = 3710 },
+        Category = "Rods"
+    },
+    {
+        Name = "Leviathan's Fang Rod (area entrance)",
+        Position = { X = -4360, Y = -11170, Z = 3710 },
+        Category = "Rods"
+    },
+    {
+        Name = "Free Spirit Rod (Second Sea)",
+        Position = { X = -385, Y = 80, Z = -385 },
+        Category = "Rods"
+    },
+    {
+        Name = "Great Dreamer Rod (Second Sea)",
+        Position = { X = 1285, Y = 90, Z = 2285 },
+        Category = "Rods"
+    },
+    {
+        Name = "Brick Rod (vault room)",
+        Position = { X = 1321, Y = 140, Z = 1540 },
+        Category = "Rods"
     }
 }
