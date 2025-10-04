@@ -60,6 +60,7 @@ return {
         Position = { X = 2715, Y = 140, Z = -2480 },
         Category = "Totems"
     },
+
     -- Rods
     {
         Name = "Stone Rod",
@@ -141,6 +142,7 @@ return {
         Position = { X = 1321, Y = 140, Z = 1540 },
         Category = "Rods"
     },
+
     -- Other Islands
     {
         Name = "Jungle's Echo",
@@ -175,6 +177,76 @@ return {
     {
         Name = "Veil of the Forsaken",
         Position = { X = -2350.74, Y = -11184.60, Z = 7094.52 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Treasure Island",
+        Position = { X = 82256, Y = 228.1, Z = -171849.9 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Northern Expedition",
+        Position = { X = 20000, Y = 133, Z = 5300 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Grand Reef",
+        Position = { X = -3530, Y = 130, Z = 550 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Atlantis",
+        Position = { X = -4300, Y = -580, Z = 1800 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Roslit Volcano",
+        Position = { X = -1450, Y = 135, Z = 750 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Brine Pool",
+        Position = { X = -1795, Y = -140, Z = -3310 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Earmark Island",
+        Position = { X = 1230, Y = 125, Z = 575 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Oscars Locker",
+        Position = { X = 256, Y = -393, Z = 3525 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Carrot Garden",
+        Position = { X = 1260, Y = -625, Z = -1070 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Blue Moon Pool",
+        Position = { X = 1410, Y = 155, Z = -580 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "The Laboratory",
+        Position = { X = -1785, Y = 130, Z = -485 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Luminescent Cavern",
+        Position = { X = 1013, Y = -313, Z = -4038 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Crimson Cavern",
+        Position = { X = -1035, Y = -360, Z = -4800 },
+        Category = "Other Islands"
+    },
+    {
+        Name = "Lost Jungle",
+        Position = { X = -2498.07, Y = 143.69, Z = -1992.59 },
         Category = "Other Islands"
     }
 }
