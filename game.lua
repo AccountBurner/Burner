@@ -1,8 +1,9 @@
-local RunService, UserInputService, TweenService, Players =
+local RunService, UserInputService, TweenService, Players, Workspace =
     game:GetService("RunService"),
     game:GetService("UserInputService"),
     game:GetService("TweenService"),
-    game:GetService("Players")
+    game:GetService("Players"),
+    game:GetService("Workspace")
 
 local Config = {
     Gravity = 2600,
@@ -10,14 +11,34 @@ local Config = {
     StartSpeed = 330,
     MaxSpeed = 940,
     SpeedRamp = 12,
+    SpeedCurveFloor = 0.44,
+    SpawnGapMin = 150,
+    SpawnGapMax = 320,
+    FirstSpawnDelay = 1.2,
+    BirdThreshold = 3000,
+    BirdChance = 0.32,
+    BirdDrift = 1.18,
+    BirdLowOffset = 26,
+    BirdHighOffset = 66,
+    FlapInterval = 0.16,
+    StepInterval = 0.09,
+    FastFallScale = 0.4,
+    HitboxInset = 2,
+    ScoreDivisor = 10,
+    PanelWidth = 660,
+    PanelHeight = 400,
     ArenaWidth = 612,
     ArenaHeight = 236,
+    ArenaX = 24,
+    ArenaY = 96,
     GroundTop = 196,
     DinoX = 54,
     PixelSize = 2,
-    BirdThreshold = 3000,
-    ScoreFile = "zekehub_runner_highscore.txt",
-    Invite = "discord.gg/zekehub"
+    CloudCount = 3,
+    BumpCount = 22,
+    ScreenMargin = 24,
+    TouchButtonWidth = 118,
+    TouchButtonHeight = 42
 }
 
 local Palette = {
@@ -31,7 +52,8 @@ local Palette = {
     Bird = Color3.fromRGB(235, 120, 130),
     Dead = Color3.fromRGB(235, 90, 100),
     Cloud = Color3.fromRGB(40, 40, 50),
-    Button = Color3.fromRGB(34, 34, 42)
+    Button = Color3.fromRGB(34, 34, 42),
+    ButtonHeld = Color3.fromRGB(52, 52, 66)
 }
 
 local Sprites = {}
@@ -209,6 +231,10 @@ do
 end
 
 do
+    function Utilities.IsTouch()
+        return UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+    end
+
     function Utilities.GetParent()
         if gethui then
             return gethui()
@@ -303,10 +329,10 @@ do
         end
     end
 
-    function Utilities.LoadHighScore()
+    function Utilities.LoadHighScore(file)
         local ok, value = pcall(function()
-            if isfile and isfile(Config.ScoreFile) then
-                return tonumber(readfile(Config.ScoreFile)) or 0
+            if file and isfile and isfile(file) then
+                return tonumber(readfile(file)) or 0
             end
             return 0
         end)
@@ -314,26 +340,44 @@ do
         return ok and value or 0
     end
 
-    function Utilities.SaveHighScore(score)
+    function Utilities.SaveHighScore(file, score)
         pcall(function()
-            if writefile then
-                writefile(Config.ScoreFile, tostring(score))
+            if file and writefile then
+                writefile(file, tostring(score))
             end
         end)
     end
 
-    function Utilities.CopyDiscord()
-        pcall(setclipboard, Config.Invite)
-    end
-
     function Utilities.Overlaps(ax, ay, aw, ah, bx, by, bw, bh)
         return ax + aw > bx and ax < bx + bw and ay + ah > by and ay < by + bh
+    end
+
+    function Utilities.FitScale(panelWidth, panelHeight)
+        local camera = Workspace.CurrentCamera
+
+        if not camera then
+            return 1
+        end
+
+        local viewport = camera.ViewportSize
+        local margin = Config.ScreenMargin * 2
+
+        return math.min(
+            1,
+            (viewport.X - margin) / panelWidth,
+            (viewport.Y - margin) / panelHeight
+        )
     end
 end
 
 do
     function Interface.Build(opts)
         local elements = {}
+        local touch = Utilities.IsTouch()
+        local panelHeight = Config.PanelHeight + (touch and 24 or 0)
+
+        elements.Touch = touch
+        elements.PanelHeight = panelHeight
 
         elements.Gui = Utilities.New("ScreenGui", {
             Name = "\0" .. tostring(math.random(1e6, 1e7)),
@@ -357,11 +401,16 @@ do
         elements.Panel = Utilities.New("Frame", {
             AnchorPoint = Vector2.new(0.5, 0.5),
             Position = UDim2.fromScale(0.5, 0.5),
-            Size = UDim2.fromOffset(660, 400),
+            Size = UDim2.fromOffset(Config.PanelWidth, panelHeight),
             BackgroundColor3 = Palette.Panel,
             BorderSizePixel = 0,
             Parent = elements.Gui
         }, { Utilities.Corner(12) })
+
+        elements.Scale = Utilities.New("UIScale", {
+            Scale = Utilities.FitScale(Config.PanelWidth, panelHeight),
+            Parent = elements.Panel
+        })
 
         Utilities.New("UIStroke", {
             Color = Palette.Line,
@@ -375,7 +424,7 @@ do
             Size = UDim2.fromOffset(500, 24),
             BackgroundTransparency = 1,
             Font = Enum.Font.GothamBold,
-            Text = opts.Title or "ZekeHub is down",
+            Text = opts.Title or "Down for maintenance",
             TextColor3 = Palette.Text,
             TextSize = 19,
             TextXAlignment = Enum.TextXAlignment.Left,
@@ -387,7 +436,7 @@ do
             Size = UDim2.fromOffset(560, 36),
             BackgroundTransparency = 1,
             Font = Enum.Font.Gotham,
-            Text = opts.Subtitle or "no eta. have a game while you wait.",
+            Text = opts.Subtitle or "",
             TextColor3 = Palette.Dim,
             TextSize = 13,
             TextWrapped = true,
@@ -399,18 +448,18 @@ do
         elements.Close = Utilities.New("TextButton", {
             AnchorPoint = Vector2.new(1, 0),
             Position = UDim2.new(1, -20, 0, 18),
-            Size = UDim2.fromOffset(28, 28),
+            Size = UDim2.fromOffset(touch and 36 or 28, touch and 36 or 28),
             BackgroundColor3 = Palette.Button,
             AutoButtonColor = false,
             Font = Enum.Font.GothamBold,
             Text = "×",
             TextColor3 = Palette.Dim,
-            TextSize = 18,
+            TextSize = touch and 22 or 18,
             Parent = elements.Panel
         }, { Utilities.Corner(6) })
 
         elements.Arena = Utilities.New("Frame", {
-            Position = UDim2.fromOffset(24, 96),
+            Position = UDim2.fromOffset(Config.ArenaX, Config.ArenaY),
             Size = UDim2.fromOffset(Config.ArenaWidth, Config.ArenaHeight),
             BackgroundColor3 = Palette.Background,
             BorderSizePixel = 0,
@@ -423,6 +472,14 @@ do
             Size = UDim2.new(1, 0, 0, 1),
             BackgroundColor3 = Palette.Line,
             BorderSizePixel = 0,
+            Parent = elements.Arena
+        })
+
+        elements.Tap = Utilities.New("TextButton", {
+            Size = UDim2.fromScale(1, 1),
+            BackgroundTransparency = 1,
+            Text = "",
+            AutoButtonColor = false,
             Parent = elements.Arena
         })
 
@@ -451,30 +508,60 @@ do
             Parent = elements.Arena
         })
 
-        Utilities.New("TextLabel", {
-            Position = UDim2.fromOffset(24, 348),
-            Size = UDim2.fromOffset(400, 20),
-            BackgroundTransparency = 1,
-            Font = Enum.Font.Gotham,
-            Text = "space to jump  ·  s to duck",
-            TextColor3 = Palette.Dim,
-            TextSize = 12,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            Parent = elements.Panel
-        })
+        local footerY = Config.ArenaY + Config.ArenaHeight + 16
 
-        elements.Discord = Utilities.New("TextButton", {
-            AnchorPoint = Vector2.new(1, 0),
-            Position = UDim2.new(1, -20, 0, 344),
-            Size = UDim2.fromOffset(150, 28),
-            BackgroundColor3 = Palette.Button,
-            AutoButtonColor = false,
-            Font = Enum.Font.GothamMedium,
-            Text = "copy discord",
-            TextColor3 = Palette.Text,
-            TextSize = 12,
-            Parent = elements.Panel
-        }, { Utilities.Corner(6) })
+        if touch then
+            elements.Jump = Utilities.New("TextButton", {
+                Position = UDim2.fromOffset(24, footerY),
+                Size = UDim2.fromOffset(Config.TouchButtonWidth, Config.TouchButtonHeight),
+                BackgroundColor3 = Palette.Button,
+                AutoButtonColor = false,
+                Font = Enum.Font.GothamMedium,
+                Text = "jump",
+                TextColor3 = Palette.Text,
+                TextSize = 15,
+                Parent = elements.Panel
+            }, { Utilities.Corner(8) })
+
+            elements.Duck = Utilities.New("TextButton", {
+                Position = UDim2.fromOffset(24 + Config.TouchButtonWidth + 12, footerY),
+                Size = UDim2.fromOffset(Config.TouchButtonWidth, Config.TouchButtonHeight),
+                BackgroundColor3 = Palette.Button,
+                AutoButtonColor = false,
+                Font = Enum.Font.GothamMedium,
+                Text = "duck",
+                TextColor3 = Palette.Text,
+                TextSize = 15,
+                Parent = elements.Panel
+            }, { Utilities.Corner(8) })
+        else
+            Utilities.New("TextLabel", {
+                Position = UDim2.fromOffset(24, footerY + 4),
+                Size = UDim2.fromOffset(400, 20),
+                BackgroundTransparency = 1,
+                Font = Enum.Font.Gotham,
+                Text = "space to jump  ·  s to duck",
+                TextColor3 = Palette.Dim,
+                TextSize = 12,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = elements.Panel
+            })
+        end
+
+        if opts.Invite then
+            elements.Invite = Utilities.New("TextButton", {
+                AnchorPoint = Vector2.new(1, 0),
+                Position = UDim2.new(1, -20, 0, footerY),
+                Size = UDim2.fromOffset(150, touch and Config.TouchButtonHeight or 28),
+                BackgroundColor3 = Palette.Button,
+                AutoButtonColor = false,
+                Font = Enum.Font.GothamMedium,
+                Text = opts.InviteLabel or "copy invite",
+                TextColor3 = Palette.Text,
+                TextSize = 12,
+                Parent = elements.Panel
+            }, { Utilities.Corner(6) })
+        end
 
         return elements
     end
@@ -482,7 +569,7 @@ do
     function Interface.BuildScenery(arena)
         local clouds, bumps = {}, {}
 
-        for index = 1, 3 do
+        for index = 1, Config.CloudCount do
             local frame = Utilities.New("Frame", {
                 Position = UDim2.fromOffset(math.random(0, Config.ArenaWidth), math.random(20, 90)),
                 Size = UDim2.fromOffset(math.random(30, 54), 6),
@@ -494,7 +581,7 @@ do
             table.insert(clouds, { frame = frame, x = frame.Position.X.Offset, speed = math.random(14, 30) })
         end
 
-        for index = 1, 22 do
+        for index = 1, Config.BumpCount do
             local frame = Utilities.New("Frame", {
                 Position = UDim2.fromOffset(math.random(0, Config.ArenaWidth), Config.GroundTop + math.random(4, 14)),
                 Size = UDim2.fromOffset(math.random(3, 9), 2),
@@ -525,7 +612,8 @@ function Runner:Show(opts)
     self._connections = connections
 
     local clouds, bumps = Interface.BuildScenery(arena)
-    local highScore = Utilities.LoadHighScore()
+    local scoreFile = opts.ScoreFile
+    local highScore = Utilities.LoadHighScore(scoreFile)
 
     local Dino = {}
     local State = {}
@@ -557,7 +645,7 @@ function Runner:Show(opts)
     State.Distance = 0
     State.StepClock = 0
     State.Frame = 1
-    State.NextSpawn = 1.2
+    State.NextSpawn = Config.FirstSpawnDelay
 
     local function activeSprites()
         return State.Ducking and Dino.Duck or Dino.Run
@@ -623,8 +711,8 @@ function Runner:Show(opts)
     local function spawnBird()
         local wingsUp, width, height = Utilities.BuildSprite(Sprites.BirdA, Palette.Bird, arena)
         local wingsDown = Utilities.BuildSprite(Sprites.BirdB, Palette.Bird, arena)
-        local low = math.random() < 0.5
-        local y = low and (Config.GroundTop - height - 26) or (Config.GroundTop - height - 66)
+        local offset = math.random() < 0.5 and Config.BirdLowOffset or Config.BirdHighOffset
+        local y = Config.GroundTop - height - offset
 
         wingsDown.Visible = false
         wingsUp.Position = UDim2.fromOffset(Config.ArenaWidth + 8, y)
@@ -652,7 +740,7 @@ function Runner:Show(opts)
         State.Speed = Config.StartSpeed
         State.Distance = 0
         State.Frame = 1
-        State.NextSpawn = 1.2
+        State.NextSpawn = Config.FirstSpawnDelay
 
         elements.Overlay.Text = ""
         Utilities.Tint(Palette.Accent, table.unpack(Dino.All))
@@ -664,14 +752,15 @@ function Runner:Show(opts)
         State.Phase = "dead"
         Utilities.Tint(Palette.Dead, table.unpack(Dino.All))
 
-        local score = math.floor(State.Distance / 10)
+        local score = math.floor(State.Distance / Config.ScoreDivisor)
+        local prompt = elements.Touch and "tap to retry" or "press space to retry"
 
         if score > highScore then
             highScore = score
-            Utilities.SaveHighScore(highScore)
-            elements.Overlay.Text = "new best · " .. score .. "\npress space to retry"
+            Utilities.SaveHighScore(scoreFile, highScore)
+            elements.Overlay.Text = "new best · " .. score .. "\n" .. prompt
         else
-            elements.Overlay.Text = "score " .. score .. "  ·  best " .. highScore .. "\npress space to retry"
+            elements.Overlay.Text = "score " .. score .. "  ·  best " .. highScore .. "\n" .. prompt
         end
     end
 
@@ -693,7 +782,7 @@ function Runner:Show(opts)
         end
 
         if active and not isGrounded() then
-            State.Velocity = math.max(State.Velocity, Config.Gravity * 0.4)
+            State.Velocity = math.max(State.Velocity, Config.Gravity * Config.FastFallScale)
             return
         end
 
@@ -748,7 +837,7 @@ function Runner:Show(opts)
 
         State.StepClock += delta
 
-        if State.StepClock >= 0.09 then
+        if State.StepClock >= Config.StepInterval then
             State.StepClock = 0
 
             if isGrounded() then
@@ -762,13 +851,15 @@ function Runner:Show(opts)
         State.NextSpawn -= delta
 
         if State.NextSpawn <= 0 then
-            if State.Distance > Config.BirdThreshold and math.random() < 0.32 then
+            if State.Distance > Config.BirdThreshold and math.random() < Config.BirdChance then
                 spawnBird()
             else
                 spawnCactus()
             end
 
-            State.NextSpawn = math.max(0.44, (math.random(150, 320) / 100) * (Config.StartSpeed / State.Speed))
+            local gap = math.random(Config.SpawnGapMin, Config.SpawnGapMax) / 100
+
+            State.NextSpawn = math.max(Config.SpeedCurveFloor, gap * (Config.StartSpeed / State.Speed))
         end
 
         local dx, dy, dw, dh = dinoBox()
@@ -776,7 +867,7 @@ function Runner:Show(opts)
         for index = #Obstacles, 1, -1 do
             local obstacle = Obstacles[index]
 
-            obstacle.x -= State.Speed * delta * (obstacle.bird and 1.18 or 1)
+            obstacle.x -= State.Speed * delta * (obstacle.bird and Config.BirdDrift or 1)
 
             if obstacle.x + obstacle.w < -30 then
                 obstacle.holder:Destroy()
@@ -795,15 +886,16 @@ function Runner:Show(opts)
                     obstacle.alt.Position = UDim2.fromOffset(x, obstacle.y)
                     obstacle.flap += delta
 
-                    if obstacle.flap >= 0.16 then
+                    if obstacle.flap >= Config.FlapInterval then
                         obstacle.flap = 0
                         obstacle.holder.Visible, obstacle.alt.Visible = obstacle.alt.Visible, obstacle.holder.Visible
                     end
                 end
 
+                local inset = Config.HitboxInset
                 local hit = Utilities.Overlaps(
                     dx, dy, dw, dh,
-                    obstacle.x + 2, obstacle.y + 2, obstacle.w - 4, obstacle.h - 4
+                    obstacle.x + inset, obstacle.y + inset, obstacle.w - inset * 2, obstacle.h - inset * 2
                 )
 
                 if hit then
@@ -812,7 +904,7 @@ function Runner:Show(opts)
             end
         end
 
-        elements.Score.Text = string.format("%d   best %d", math.floor(State.Distance / 10), highScore)
+        elements.Score.Text = string.format("%d   best %d", math.floor(State.Distance / Config.ScoreDivisor), highScore)
     end)
 
     connections[#connections + 1] = UserInputService.InputBegan:Connect(function(input, processed)
@@ -821,14 +913,11 @@ function Runner:Show(opts)
         end
 
         local key = input.KeyCode
-        local pointer = input.UserInputType
 
         if key == Enum.KeyCode.Space or key == Enum.KeyCode.Up or key == Enum.KeyCode.W then
             jump()
         elseif key == Enum.KeyCode.Down or key == Enum.KeyCode.S then
             setDucking(true)
-        elseif pointer == Enum.UserInputType.MouseButton1 or pointer == Enum.UserInputType.Touch then
-            jump()
         end
     end)
 
@@ -838,20 +927,60 @@ function Runner:Show(opts)
         end
     end)
 
+    do
+        local camera = Workspace.CurrentCamera
+
+        if camera then
+            connections[#connections + 1] = camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+                elements.Scale.Scale = Utilities.FitScale(Config.PanelWidth, elements.PanelHeight)
+            end)
+        end
+    end
+
+    elements.Tap.MouseButton1Click:Connect(jump)
+
+    if elements.Jump then
+        elements.Jump.MouseButton1Down:Connect(function()
+            elements.Jump.BackgroundColor3 = Palette.ButtonHeld
+            jump()
+        end)
+
+        elements.Jump.MouseButton1Up:Connect(function()
+            elements.Jump.BackgroundColor3 = Palette.Button
+        end)
+
+        elements.Duck.MouseButton1Down:Connect(function()
+            elements.Duck.BackgroundColor3 = Palette.ButtonHeld
+            setDucking(true)
+        end)
+
+        elements.Duck.MouseButton1Up:Connect(function()
+            elements.Duck.BackgroundColor3 = Palette.Button
+            setDucking(false)
+        end)
+
+        elements.Duck.MouseLeave:Connect(function()
+            elements.Duck.BackgroundColor3 = Palette.Button
+            setDucking(false)
+        end)
+    end
+
     elements.Close.MouseButton1Click:Connect(function()
         self:Hide()
     end)
 
-    elements.Discord.MouseButton1Click:Connect(function()
-        Utilities.CopyDiscord()
-        elements.Discord.Text = "copied"
+    if elements.Invite and opts.Invite then
+        elements.Invite.MouseButton1Click:Connect(function()
+            pcall(setclipboard, opts.Invite)
+            elements.Invite.Text = "copied"
 
-        task.delay(1.5, function()
-            if elements.Discord.Parent then
-                elements.Discord.Text = "copy discord"
-            end
+            task.delay(1.5, function()
+                if elements.Invite.Parent then
+                    elements.Invite.Text = opts.InviteLabel or "copy invite"
+                end
+            end)
         end)
-    end)
+    end
 
     return self
 end
